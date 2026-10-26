@@ -4,7 +4,7 @@ cask "wick" do
 
   url "https://github.com/Abulkosim/wick/releases/download/v#{version}/Wick_#{version}_universal.dmg"
   name "Wick"
-  desc "Menu bar app that keeps the Mac awake"
+  desc "Menu bar app that prevents sleep"
   homepage "https://abulkosim.github.io/wick/"
 
   livecheck do
