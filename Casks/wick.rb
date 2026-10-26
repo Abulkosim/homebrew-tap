@@ -31,5 +31,6 @@ cask "wick" do
     Wick is not notarized, so macOS blocks the first launch.
     Open System Settings → Privacy & Security, click Open Anyway, then Open.
     On macOS 12–14, Control-click Wick in Applications → Open also works.
+    The wick command (wick status, wick start 45) runs once Wick has opened.
   EOS
 end
