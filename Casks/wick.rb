@@ -1,6 +1,6 @@
 cask "wick" do
-  version "0.4.0"
-  sha256 "569549a2c8ba7208bde4b147e1f16d694d7fe06fda9da18771aa72a9ecb2b828"
+  version "0.5.0"
+  sha256 "33d2a2af35f9de1b7c69a721a2858b631ec5b7f0420916a8e8cf9ab2503c5724"
 
   url "https://github.com/Abulkosim/wick/releases/download/v#{version}/Wick_#{version}_universal.dmg"
   name "Wick"
