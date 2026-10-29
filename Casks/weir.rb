@@ -1,6 +1,6 @@
 cask "weir" do
-  version "0.5.0"
-  sha256 "74a633d3784981339344db38f434e8846e4a3503b268cc7c497eeb05aaf7c027"
+  version "0.6.0"
+  sha256 "0bb722a4b90df395677401da4c8ec52692069c70472005e611feb96134e8a9ab"
 
   url "https://github.com/Abulkosim/weir/releases/download/v#{version}/Weir_#{version}_universal.dmg"
   name "Weir"
@@ -16,6 +16,7 @@ cask "weir" do
   depends_on macos: :monterey
 
   app "Weir.app"
+  binary "#{appdir}/Weir.app/Contents/MacOS/weir"
 
   uninstall quit: "com.abulkosim.weir"
 
@@ -32,5 +33,6 @@ cask "weir" do
     Weir is not notarized, so macOS blocks the first launch.
     Open System Settings → Privacy & Security, click Open Anyway, then Open.
     On macOS 12–14, Control-click Weir in Applications → Open also works.
+    The weir command (weir --json, weir test) works once Weir has opened.
   EOS
 end
