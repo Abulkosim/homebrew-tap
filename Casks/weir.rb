@@ -1,6 +1,6 @@
 cask "weir" do
-  version "0.7.1"
-  sha256 "82913d6e911f0dea45e8fa15d3071d8018f9b7160ccb3dcf23cbc91d7f7de5b7"
+  version "0.7.2"
+  sha256 "b432e698ef4df100f697b80670bbe03961389cf241c13b9f27d99ab2c3aa6c8a"
 
   url "https://github.com/Abulkosim/weir/releases/download/v#{version}/Weir_#{version}_universal.dmg"
   name "Weir"
