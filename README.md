@@ -14,4 +14,6 @@ brew install --cask abulkosim/tap/tonearm
 
 Casks are bumped automatically when a release is published. Tonearm's cask always points at its latest release, so it needs no bump. The apps are free and open source but not notarized, so macOS blocks the first launch: open **System Settings → Privacy & Security** and click **Open Anyway**. Tonearm's cask clears the quarantine flag, so it opens without this step.
 
-The apps update themselves; `brew upgrade` leaves them alone (`auto_updates true`).
+The apps update themselves, and `brew upgrade` leaves them alone: Wick and Weir are marked `auto_updates true`, and Tonearm's cask always installs the latest release, which Homebrew skips unless you pass `--greedy`.
+
+The Check casks workflow runs `brew style`, `brew audit --strict --online`, and a real install and `--zap` uninstall of Tonearm on a Mac, on every pull request.
