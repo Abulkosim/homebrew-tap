@@ -36,6 +36,12 @@ jobs:
         run: |
           brew install --cask abulkosim/tap/tonearm
           test -d /Applications/Tonearm.app
+          # The check below means something only if Homebrew quarantined the download.
+          dmg="$(brew --cache --cask abulkosim/tap/tonearm)"
+          if ! xattr -p com.apple.quarantine "$dmg"; then
+            echo "::error::Homebrew did not quarantine $dmg, so the next check proves nothing"
+            exit 1
+          fi
           if xattr -p com.apple.quarantine /Applications/Tonearm.app 2> /dev/null; then
             echo "::error::the cask left the quarantine flag on Tonearm.app"
             exit 1
