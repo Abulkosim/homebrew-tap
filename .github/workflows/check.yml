@@ -1,7 +1,8 @@
 name: Check casks
 
-# brew style and brew audit on every cask, then a real install and zap uninstall of
-# Tonearm, on a Mac.
+# On a Mac with the latest Homebrew: install Tonearm the way the README says, check it,
+# uninstall it with --zap, then run brew style and brew audit on every cask. Each step
+# runs even when an earlier one failed, so one run shows every problem.
 on:
   pull_request:
   push:
@@ -13,32 +14,25 @@ permissions:
 
 jobs:
   check:
-    name: Style, audit and install
+    name: Install, style and audit
     runs-on: macos-15
     timeout-minutes: 20
     env:
-      HOMEBREW_NO_AUTO_UPDATE: "1"
       HOMEBREW_NO_INSTALL_CLEANUP: "1"
       HOMEBREW_NO_ENV_HINTS: "1"
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - name: Use this checkout as the abulkosim/tap tap
+      - name: Update Homebrew and use this checkout as abulkosim/tap
         run: |
+          brew update --quiet
+          brew --version
           tap="$(brew --repository)/Library/Taps/abulkosim/homebrew-tap"
           rm -rf "$tap"
           mkdir -p "$(dirname "$tap")"
           cp -R "$GITHUB_WORKSPACE" "$tap"
-          brew tap
-      - name: brew style
-        run: brew style abulkosim/tap
-      - name: brew audit
-        run: |
-          for cask in Casks/*.rb; do
-            brew audit --cask --strict --online "abulkosim/tap/$(basename "$cask" .rb)"
-          done
-      - name: Install Tonearm
+      - name: Install Tonearm as the README says
         run: |
           brew install --cask abulkosim/tap/tonearm
           test -d /Applications/Tonearm.app
@@ -49,6 +43,7 @@ jobs:
           codesign --verify --deep --strict /Applications/Tonearm.app
           echo "Installed Tonearm $(defaults read /Applications/Tonearm.app/Contents/Info.plist CFBundleShortVersionString)"
       - name: Uninstall with --zap
+        if: ${{ !cancelled() }}
         run: |
           history_dir="$HOME/Library/Application Support/Tonearm"
           mkdir -p "$history_dir"
@@ -59,3 +54,14 @@ jobs:
             echo "::error::--zap left the listening history in $history_dir"
             exit 1
           fi
+      - name: brew style
+        if: ${{ !cancelled() }}
+        run: |
+          brew trust abulkosim/tap
+          brew style abulkosim/tap
+      - name: brew audit
+        if: ${{ !cancelled() }}
+        run: |
+          for cask in Casks/*.rb; do
+            brew audit --cask --strict --online "abulkosim/tap/$(basename "$cask" .rb)"
+          done
