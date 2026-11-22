@@ -1,0 +1,61 @@
+name: Check casks
+
+# brew style and brew audit on every cask, then a real install and zap uninstall of
+# Tonearm, on a Mac.
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: Style, audit and install
+    runs-on: macos-15
+    timeout-minutes: 20
+    env:
+      HOMEBREW_NO_AUTO_UPDATE: "1"
+      HOMEBREW_NO_INSTALL_CLEANUP: "1"
+      HOMEBREW_NO_ENV_HINTS: "1"
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Use this checkout as the abulkosim/tap tap
+        run: |
+          tap="$(brew --repository)/Library/Taps/abulkosim/homebrew-tap"
+          rm -rf "$tap"
+          mkdir -p "$(dirname "$tap")"
+          cp -R "$GITHUB_WORKSPACE" "$tap"
+          brew tap
+      - name: brew style
+        run: brew style abulkosim/tap
+      - name: brew audit
+        run: |
+          for cask in Casks/*.rb; do
+            brew audit --cask --strict --online "abulkosim/tap/$(basename "$cask" .rb)"
+          done
+      - name: Install Tonearm
+        run: |
+          brew install --cask abulkosim/tap/tonearm
+          test -d /Applications/Tonearm.app
+          if xattr -p com.apple.quarantine /Applications/Tonearm.app 2> /dev/null; then
+            echo "::error::the cask left the quarantine flag on Tonearm.app"
+            exit 1
+          fi
+          codesign --verify --deep --strict /Applications/Tonearm.app
+          echo "Installed Tonearm $(defaults read /Applications/Tonearm.app/Contents/Info.plist CFBundleShortVersionString)"
+      - name: Uninstall with --zap
+        run: |
+          history_dir="$HOME/Library/Application Support/Tonearm"
+          mkdir -p "$history_dir"
+          touch "$history_dir/history.sqlite"
+          brew uninstall --zap --cask tonearm
+          test ! -e /Applications/Tonearm.app
+          if [ -e "$history_dir" ]; then
+            echo "::error::--zap left the listening history in $history_dir"
+            exit 1
+          fi
